@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+# Allow only one concurrent deployment
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: devcontainers/ci@v0.3
+        with:
+          # Don't push devcontainer image to registry.
+          # Caching would speed up builds but the image (~1.2GB) exceeds
+          # GitHub Free plan storage limits.
+          push: never
+          runCmd: |
+            npm ci
+            npm run build
+            npm run build:browser
+
+      - name: Prepare Pages content
+        run: |
+          mkdir -p _site/dist
+          cp test/browser.html _site/index.html
+          # Fix import path for Pages (../dist/ -> ./dist/)
+          sed -i "s|'../dist/|'./dist/|g" _site/index.html
+          cp dist/review.browser.js _site/dist/
+          cp dist/libmecab.wasm _site/dist/
+          cp dist/libmecab.data _site/dist/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

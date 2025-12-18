@@ -1,0 +1,21 @@
+--- review/compiler.rb	2025-12-18 02:11:39.399612487 +0000
++++ review/compiler.rb	2025-12-18 08:16:18.271192676 +0000
+@@ -676,7 +676,8 @@
+           error "`@<xxx>' seen but is not valid inline op: #{w}", location: location
+         end
+       end
+-      result = +''
++      # Opal patch: use array instead of mutable string
++      result = []
+       until words.empty?
+         result << if in_non_escaped_command? && block_mode
+                     revert_replace_fence(words.shift)
+@@ -687,7 +688,7 @@
+ 
+         result << compile_inline(revert_replace_fence(words.shift.gsub('\\}', '}').gsub('\\\\', '\\')))
+       end
+-      result
++      result.join('')
+     rescue StandardError => e
+       error e.message, location: location
+     end

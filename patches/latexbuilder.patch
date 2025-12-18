@@ -1,0 +1,152 @@
+--- review/latexbuilder.rb	2025-12-18 02:11:39.401592690 +0000
++++ review/latexbuilder.rb	2025-12-18 08:16:18.274357361 +0000
+@@ -263,16 +263,69 @@
+       @doc_status[:minicolumn] = nil
+     end
+ 
+-    CAPTION_TITLES.each do |name|
+-      class_eval %Q(
+-        def #{name}_begin(caption = nil)
+-          common_block_begin('#{name}', caption)
+-        end
++    # Opal patch: static method definitions instead of class_eval
++    def note_begin(caption = nil)
++      common_block_begin('note', caption)
++    end
+ 
+-        def #{name}_end
+-          common_block_end('#{name}')
+-        end
+-      ), __FILE__, __LINE__ - 8
++    def note_end
++      common_block_end('note')
++    end
++
++    def memo_begin(caption = nil)
++      common_block_begin('memo', caption)
++    end
++
++    def memo_end
++      common_block_end('memo')
++    end
++
++    def tip_begin(caption = nil)
++      common_block_begin('tip', caption)
++    end
++
++    def tip_end
++      common_block_end('tip')
++    end
++
++    def info_begin(caption = nil)
++      common_block_begin('info', caption)
++    end
++
++    def info_end
++      common_block_end('info')
++    end
++
++    def warning_begin(caption = nil)
++      common_block_begin('warning', caption)
++    end
++
++    def warning_end
++      common_block_end('warning')
++    end
++
++    def important_begin(caption = nil)
++      common_block_begin('important', caption)
++    end
++
++    def important_end
++      common_block_end('important')
++    end
++
++    def caution_begin(caption = nil)
++      common_block_begin('caution', caption)
++    end
++
++    def caution_end
++      common_block_end('caution')
++    end
++
++    def notice_begin(caption = nil)
++      common_block_begin('notice', caption)
++    end
++
++    def notice_end
++      common_block_end('notice')
+     end
+ 
+     def captionblock(type, lines, caption)
+@@ -325,7 +378,7 @@
+         str = lines.map(&:chomp).join("\n")
+       end
+ 
+-      str.sub!(/\A(\[)/) { '\lbrack{}' }
++      str = str.sub(/\A(\[)/) { '\lbrack{}' }
+       puts '\item ' + str
+     end
+ 
+@@ -349,7 +402,7 @@
+         str = lines.map(&:chomp).join("\n")
+       end
+ 
+-      str.sub!(/\A(\[)/) { '\lbrack{}' }
++      str = str.sub(/\A(\[)/) { '\lbrack{}' }
+       puts '\item ' + str
+     end
+ 
+@@ -493,9 +546,9 @@
+         puts captionstr
+       end
+ 
+-      body = +''
++      body = ''
+       lines.each_with_index do |line, idx|
+-        body.concat(yield(line, idx))
++        body += yield(line, idx)
+       end
+       puts macro('begin', command)
+       print body
+@@ -821,7 +874,7 @@
+ 
+     def separate_tsize(size)
+       ret = []
+-      s = +''
++      s = ''
+       brace = nil
+       size.chars.each do |ch|
+         case ch
+@@ -829,24 +882,24 @@
+           next
+         when '{'
+           brace = true
+-          s << ch
++          s += ch
+         when '}'
+           brace = nil
+-          s << ch
+-          ret << s
+-          s = +''
++          s += ch
++          ret.push(s)
++          s = ''
+         else
+           if brace || s.empty?
+-            s << ch
++            s += ch
+           else
+-            ret << s
++            ret.push(s)
+             s = ch
+           end
+         end
+       end
+ 
+       unless s.empty?
+-        ret << s
++        ret.push(s)
+       end
+ 
+       ret

@@ -1,0 +1,10 @@
+bookname: sample-book
+booktitle: サンプル書籍
+aut: 著者名
+language: ja
+toc: true
+secnolevel: 3
+titlepage: true
+
+pdfmaker:
+  makeindex: true

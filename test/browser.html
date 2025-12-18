@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>review-js Browser Test</title>
+</head>
+<body>
+  <h1>review-js Browser Test</h1>
+
+  <div>
+    <label><input type="radio" name="format" value="html" checked> HTML</label>
+    <label><input type="radio" name="format" value="markdown"> Markdown</label>
+    <label><input type="radio" name="format" value="latex"> LaTeX</label>
+  </div>
+
+  <div>
+    <textarea id="source" rows="15" cols="80">= Hello Re:VIEW
+
+This is a test paragraph with @&lt;b&gt;{bold} and @&lt;i&gt;{italic} text.
+
+== Section
+
+ * Item 1
+ * Item 2
+ * Item 3
+
+//list[sample][Sample Code][javascript]{
+console.log("Hello, World!");
+//}
+</textarea>
+  </div>
+
+  <div>
+    <button id="compile">Compile</button>
+  </div>
+
+  <h2>Result</h2>
+  <pre><code id="result"></code></pre>
+
+  <script type="module">
+    import ReVIEW from '../dist/review.browser.js';
+
+    const Opal = globalThis.Opal;
+
+    document.getElementById('compile').addEventListener('click', () => {
+      const source = document.getElementById('source').value;
+      const format = document.querySelector('input[name="format"]:checked').value;
+      const resultEl = document.getElementById('result');
+
+      try {
+        const result = ReVIEW.API.$compile(source, format, Opal.hash());
+        resultEl.textContent = String(result);
+      } catch (e) {
+        resultEl.textContent = 'Error: ' + e.message;
+      }
+    });
+  </script>
+</body>
+</html>

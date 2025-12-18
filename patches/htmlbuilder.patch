@@ -1,0 +1,152 @@
+--- review/htmlbuilder.rb	2025-12-18 02:11:39.400789657 +0000
++++ review/htmlbuilder.rb	2025-12-18 08:16:18.272226821 +0000
+@@ -139,7 +139,30 @@
+         @javascripts.push(%Q(<script type="text/javascript" id="MathJax-script" async="true" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>))
+       end
+ 
+-      ReVIEW::Template.load(layoutfile).result(binding)
++      # Opal patch: use inline template instead of file-based template
++      generate_html_output
++    end
++
++    # Opal patch: inline HTML generation without file template
++    def generate_html_output
++      stylesheets_html = (@stylesheets || []).map { |s| %Q(<link rel="stylesheet" href="#{s}">) }.join("\n    ")
++      javascripts_html = (@javascripts || []).join("\n    ")
++
++      <<~HTML
++        <!DOCTYPE html>
++        <html lang="#{@language || 'ja'}">
++        <head>
++          <meta charset="UTF-8">
++          <meta name="viewport" content="width=device-width, initial-scale=1.0">
++          <title>#{@title}</title>
++          #{stylesheets_html}
++          #{javascripts_html}
++        </head>
++        <body>
++        #{@body}
++        </body>
++        </html>
++      HTML
+     end
+ 
+     def solve_nest(s)
+@@ -368,22 +391,101 @@
+       captionblock('note', lines, caption)
+     end
+ 
+-    CAPTION_TITLES.each do |name|
+-      class_eval %Q(
+-        def #{name}_begin(caption = nil)
+-          check_nested_minicolumn
+-          @doc_status[:minicolumn] = '#{name}'
+-          puts %Q(<div class="#{name}">)
+-          if caption.present?
+-            puts %Q(<p class="caption">\#{compile_inline(caption)}</p>)
+-          end
+-        end
+-
+-        def #{name}_end
+-          puts '</div>'
+-          @doc_status[:minicolumn] = nil
+-        end
+-      ), __FILE__, __LINE__ - 14
++    # Opal patch: static method definitions instead of class_eval
++    def note_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'note'
++      puts %Q(<div class="note">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def note_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def memo_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'memo'
++      puts %Q(<div class="memo">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def memo_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def tip_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'tip'
++      puts %Q(<div class="tip">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def tip_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def info_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'info'
++      puts %Q(<div class="info">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def info_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def warning_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'warning'
++      puts %Q(<div class="warning">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def warning_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def important_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'important'
++      puts %Q(<div class="important">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def important_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def caution_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'caution'
++      puts %Q(<div class="caution">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def caution_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
++    end
++
++    def notice_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'notice'
++      puts %Q(<div class="notice">)
++      puts %Q(<p class="caption">#{compile_inline(caption)}</p>) if caption.present?
++    end
++
++    def notice_end
++      puts '</div>'
++      @doc_status[:minicolumn] = nil
+     end
+ 
+     def ul_begin

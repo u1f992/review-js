@@ -1,0 +1,168 @@
+--- review/builder.rb	2025-12-18 02:11:39.399612487 +0000
++++ review/builder.rb	2025-12-18 08:16:18.269199632 +0000
+@@ -64,8 +64,9 @@
+       @tabwidth = nil
+       @tsize = nil
+       if @book && @book.config
+-        @img_math ||= ReVIEW::ImgMath.new(@book.config)
+-        @img_graph ||= ReVIEW::ImgGraph.new(@book.config, target_name)
++        # Opal patch: skip ImgMath and ImgGraph initialization (requires file system)
++        # @img_math ||= ReVIEW::ImgMath.new(@book.config)
++        # @img_graph ||= ReVIEW::ImgGraph.new(@book.config, target_name)
+         if words_file_path = @book.config['words_file']
+           words_files = if words_file_path.is_a?(String)
+                           [words_file_path]
+@@ -139,7 +140,8 @@
+     end
+ 
+     def load_words(file)
+-      if File.exist?(file) && /\.csv\Z/i.match?(file)
++      # Opal patch: use $ instead of \Z (Opal regex doesn't support \Z anchor)
++      if File.exist?(file) && /\.csv$/i.match?(file)
+         CSV.foreach(file) do |row|
+           @dictionary[row[0]] = row[1]
+         end
+@@ -594,25 +596,126 @@
+       raise NotImplementedError
+     end
+ 
+-    CAPTION_TITLES.each do |name|
+-      class_eval %Q(
+-        def #{name}(lines, caption = nil)
+-          check_nested_minicolumn
+-          captionblock("#{name}", lines, caption)
+-        end
++    # Opal patch: static method definitions instead of class_eval
++    # CAPTION_TITLES = %w[note memo tip info warning important caution notice]
++    def note(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('note', lines, caption)
++    end
+ 
+-        def #{name}_begin(caption = nil)
+-          check_nested_minicolumn
+-          @doc_status[:minicolumn] = '#{name}'
+-          if caption
+-            puts compile_inline(caption)
+-          end
+-        end
++    def note_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'note'
++      puts compile_inline(caption) if caption
++    end
+ 
+-        def #{name}_end
+-          @doc_status[:minicolumn] = nil
+-        end
+-      ), __FILE__, __LINE__ - 17
++    def note_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def memo(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('memo', lines, caption)
++    end
++
++    def memo_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'memo'
++      puts compile_inline(caption) if caption
++    end
++
++    def memo_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def tip(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('tip', lines, caption)
++    end
++
++    def tip_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'tip'
++      puts compile_inline(caption) if caption
++    end
++
++    def tip_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def info(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('info', lines, caption)
++    end
++
++    def info_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'info'
++      puts compile_inline(caption) if caption
++    end
++
++    def info_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def warning(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('warning', lines, caption)
++    end
++
++    def warning_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'warning'
++      puts compile_inline(caption) if caption
++    end
++
++    def warning_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def important(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('important', lines, caption)
++    end
++
++    def important_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'important'
++      puts compile_inline(caption) if caption
++    end
++
++    def important_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def caution(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('caution', lines, caption)
++    end
++
++    def caution_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'caution'
++      puts compile_inline(caption) if caption
++    end
++
++    def caution_end
++      @doc_status[:minicolumn] = nil
++    end
++
++    def notice(lines, caption = nil)
++      check_nested_minicolumn
++      captionblock('notice', lines, caption)
++    end
++
++    def notice_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'notice'
++      puts compile_inline(caption) if caption
++    end
++
++    def notice_end
++      @doc_status[:minicolumn] = nil
+     end
+ 
+     def check_nested_minicolumn

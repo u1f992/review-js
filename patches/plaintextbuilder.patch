@@ -1,0 +1,120 @@
+--- review/plaintextbuilder.rb	2025-12-18 02:11:39.401592690 +0000
++++ review/plaintextbuilder.rb	2025-12-18 08:16:18.276370330 +0000
+@@ -612,22 +612,101 @@
+ 
+     alias_method :box, :insn
+ 
+-    CAPTION_TITLES.each do |name|
+-      class_eval %Q(
+-        def #{name}_begin(caption = nil)
+-          check_nested_minicolumn
+-          @doc_status[:minicolumn] = '#{name}'
+-          blank
+-          if caption.present?
+-            puts compile_inline(caption)
+-          end
+-        end
+-
+-        def #{name}_end
+-          blank
+-          @doc_status[:minicolumn] = nil
+-        end
+-      ), __FILE__, __LINE__ - 14
++    # Opal patch: static method definitions instead of class_eval
++    def note_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'note'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def note_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def memo_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'memo'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def memo_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def tip_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'tip'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def tip_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def info_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'info'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def info_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def warning_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'warning'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def warning_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def important_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'important'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def important_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def caution_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'caution'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def caution_end
++      blank
++      @doc_status[:minicolumn] = nil
++    end
++
++    def notice_begin(caption = nil)
++      check_nested_minicolumn
++      @doc_status[:minicolumn] = 'notice'
++      blank
++      puts compile_inline(caption) if caption.present?
++    end
++
++    def notice_end
++      blank
++      @doc_status[:minicolumn] = nil
+     end
+ 
+     def indepimage(_lines, _id, caption = nil, _metric = nil)
