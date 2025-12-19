@@ -1,6 +1,6 @@
 {
   "name": "@u1f992/review-js",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Re:VIEW markup language parser and converter compiled to JavaScript via Opal",
   "type": "module",
   "main": "dist/review.js",
