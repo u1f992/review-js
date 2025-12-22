@@ -15,10 +15,13 @@ jobs:
       contents: write  # to generate release note
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: devcontainers/ci@v0.3
         with:
           push: never
           runCmd: |
+            set -e
             npm ci
             npm run build
             npm pack
